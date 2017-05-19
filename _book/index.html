@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>SWATH-MS quantification differential expression analysis</title>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  <meta name="description" content="SWATH-MS quantification differential expression analysis">
+  <meta name="generator" content="bookdown 0.3 and GitBook 2.6.7">
+
+  <meta property="og:title" content="SWATH-MS quantification differential expression analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="SWATH-MS quantification differential expression analysis" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+
+<link rel="next" href="students-test.html">
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/htmlwidgets-0.8/htmlwidgets.js"></script>
+<script src="libs/datatables-binding-0.2/datatables.js"></script>
+<link href="libs/dt-core-1.10.12/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.10.12/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.10.12/js/jquery.dataTables.min.js"></script>
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="students-test.html"><a href="students-test.html"><i class="fa fa-check"></i><b>2</b> Student’s test</a><ul>
+<li class="chapter" data-level="2.1" data-path="students-test.html"><a href="students-test.html#loading-and-visualizing-the-data"><i class="fa fa-check"></i><b>2.1</b> Loading and visualizing the data</a></li>
+<li class="chapter" data-level="2.2" data-path="students-test.html"><a href="students-test.html#log-transformation"><i class="fa fa-check"></i><b>2.2</b> Log transformation</a></li>
+<li class="chapter" data-level="2.3" data-path="students-test.html"><a href="students-test.html#normalization"><i class="fa fa-check"></i><b>2.3</b> Normalization</a></li>
+<li class="chapter" data-level="2.4" data-path="students-test.html"><a href="students-test.html#differential-expression-annalysis"><i class="fa fa-check"></i><b>2.4</b> Differential expression annalysis</a><ul>
+<li class="chapter" data-level="2.4.1" data-path="students-test.html"><a href="students-test.html#experimental-design"><i class="fa fa-check"></i><b>2.4.1</b> experimental design</a></li>
+<li class="chapter" data-level="2.4.2" data-path="students-test.html"><a href="students-test.html#fold-change-and-statistical-test-calcul"><i class="fa fa-check"></i><b>2.4.2</b> Fold change and statistical test calcul</a></li>
+<li class="chapter" data-level="2.4.3" data-path="students-test.html"><a href="students-test.html#differentially-expressed-proteins"><i class="fa fa-check"></i><b>2.4.3</b> Differentially expressed proteins</a></li>
+<li class="chapter" data-level="2.4.4" data-path="students-test.html"><a href="students-test.html#volcano-plot"><i class="fa fa-check"></i><b>2.4.4</b> Volcano Plot</a></li>
+<li class="chapter" data-level="2.4.5" data-path="students-test.html"><a href="students-test.html#ven-diagramm"><i class="fa fa-check"></i><b>2.4.5</b> Ven Diagramm</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="limma.html"><a href="limma.html"><i class="fa fa-check"></i><b>3</b> LIMMA</a><ul>
+<li class="chapter" data-level="3.1" data-path="limma.html"><a href="limma.html#loading-and-visualizing-the-data-1"><i class="fa fa-check"></i><b>3.1</b> loading and visualizing the data</a></li>
+<li class="chapter" data-level="3.2" data-path="limma.html"><a href="limma.html#normalization-1"><i class="fa fa-check"></i><b>3.2</b> Normalization</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="limma.html"><a href="limma.html#design-and-contrast-matrix"><i class="fa fa-check"></i><b>3.2.1</b> design and contrast matrix</a></li>
+<li class="chapter" data-level="3.2.2" data-path="limma.html"><a href="limma.html#applying-limma"><i class="fa fa-check"></i><b>3.2.2</b> applying limma</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="limma.html"><a href="limma.html#differential-expression-annalysis-1"><i class="fa fa-check"></i><b>3.3</b> Differential expression annalysis</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="limma.html"><a href="limma.html#fitting-the-model"><i class="fa fa-check"></i><b>3.3.1</b> fitting the model</a></li>
+<li class="chapter" data-level="3.3.2" data-path="limma.html"><a href="limma.html#extracting-the-results"><i class="fa fa-check"></i><b>3.3.2</b> Extracting the results</a></li>
+<li class="chapter" data-level="3.3.3" data-path="limma.html"><a href="limma.html#differentially-expressed-proteins-1"><i class="fa fa-check"></i><b>3.3.3</b> Differentially expressed proteins</a></li>
+<li class="chapter" data-level="3.3.4" data-path="limma.html"><a href="limma.html#volcano-plot-1"><i class="fa fa-check"></i><b>3.3.4</b> Volcano Plot</a></li>
+<li class="chapter" data-level="3.3.5" data-path="limma.html"><a href="limma.html#ven-diagramm-1"><i class="fa fa-check"></i><b>3.3.5</b> Ven Diagramm</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="anova.html"><a href="anova.html"><i class="fa fa-check"></i><b>4</b> ANOVA</a><ul>
+<li class="chapter" data-level="4.1" data-path="anova.html"><a href="anova.html#loading-and-visualizing-the-data-2"><i class="fa fa-check"></i><b>4.1</b> loading and visualizing the data</a></li>
+<li class="chapter" data-level="4.2" data-path="anova.html"><a href="anova.html#log-transform"><i class="fa fa-check"></i><b>4.2</b> log transform</a></li>
+<li class="chapter" data-level="4.3" data-path="anova.html"><a href="anova.html#normalization-2"><i class="fa fa-check"></i><b>4.3</b> Normalization</a></li>
+<li class="chapter" data-level="4.4" data-path="anova.html"><a href="anova.html#differential-expression-annalysis-2"><i class="fa fa-check"></i><b>4.4</b> Differential expression annalysis</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="anova.html"><a href="anova.html#anova-test"><i class="fa fa-check"></i><b>4.4.1</b> ANOVA test</a></li>
+<li class="chapter" data-level="4.4.2" data-path="anova.html"><a href="anova.html#differentially-expressed-proteins-2"><i class="fa fa-check"></i><b>4.4.2</b> Differentially expressed proteins</a></li>
+<li class="chapter" data-level="4.4.3" data-path="anova.html"><a href="anova.html#post-hoc-analysis"><i class="fa fa-check"></i><b>4.4.3</b> post hoc analysis</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="comparison-of-the-differents-statistical-test.html"><a href="comparison-of-the-differents-statistical-test.html"><i class="fa fa-check"></i><b>5</b> Comparison of the differents statistical test</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">SWATH-MS quantification differential expression analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="header">
+<h1 class="title">SWATH-MS quantification differential expression analysis</h1>
+</div>
+<div id="introduction" class="section level1">
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>SWATH-MS is a data-independent acquisition mass spectrometry techinique that allows to identify and quantify a great number of protein in a single sample. This technique is therefore suitable for proteomics studies trying to assess the variation in the protein expression of different samples, in order to determine the proteins affected by a certain factor.</p>
+<p>The data in this example comes from : Bjelosevic S, Pascovici D, Ping H, et.al. Quantitative age-specific variability of plasma proteins in healthy neonates, children and adults. Molecular &amp; Cellular Proteomics (March 23 2017). The studies try to understand the impact of the life stage on protein expression. Four age group are compared each age group comport ten replicates :<br />
+-neonates<br />
+-child less than one year old<br />
+-child between 1 and five years old<br />
+-adults</p>
+<p>146 proteins were identified and quantified.</p>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
+<a href="students-test.html" class="navigation navigation-next navigation-unique" aria-label="Next page""><i class="fa fa-angle-right"></i></a>
+
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

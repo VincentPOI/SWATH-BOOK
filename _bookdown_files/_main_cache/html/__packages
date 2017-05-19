@@ -1,0 +1,10 @@
+base
+knitr
+limma
+ggplot2
+ggrepel
+futile.logger
+VennDiagram
+edgeR
+gplots
+reshape2

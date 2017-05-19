@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>SWATH-MS quantification differential expression analysis</title>
+  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+  <meta name="description" content="SWATH-MS quantification differential expression analysis">
+  <meta name="generator" content="bookdown 0.3 and GitBook 2.6.7">
+
+  <meta property="og:title" content="SWATH-MS quantification differential expression analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="SWATH-MS quantification differential expression analysis" />
+  
+  
+  
+
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="anova.html">
+
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/htmlwidgets-0.8/htmlwidgets.js"></script>
+<script src="libs/datatables-binding-0.2/datatables.js"></script>
+<link href="libs/dt-core-1.10.12/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.10.12/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.10.12/js/jquery.dataTables.min.js"></script>
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="students-test.html"><a href="students-test.html"><i class="fa fa-check"></i><b>2</b> Student’s test</a><ul>
+<li class="chapter" data-level="2.1" data-path="students-test.html"><a href="students-test.html#loading-and-visualizing-the-data"><i class="fa fa-check"></i><b>2.1</b> Loading and visualizing the data</a></li>
+<li class="chapter" data-level="2.2" data-path="students-test.html"><a href="students-test.html#log-transformation"><i class="fa fa-check"></i><b>2.2</b> Log transformation</a></li>
+<li class="chapter" data-level="2.3" data-path="students-test.html"><a href="students-test.html#normalization"><i class="fa fa-check"></i><b>2.3</b> Normalization</a></li>
+<li class="chapter" data-level="2.4" data-path="students-test.html"><a href="students-test.html#differential-expression-annalysis"><i class="fa fa-check"></i><b>2.4</b> Differential expression annalysis</a><ul>
+<li class="chapter" data-level="2.4.1" data-path="students-test.html"><a href="students-test.html#experimental-design"><i class="fa fa-check"></i><b>2.4.1</b> experimental design</a></li>
+<li class="chapter" data-level="2.4.2" data-path="students-test.html"><a href="students-test.html#fold-change-and-statistical-test-calcul"><i class="fa fa-check"></i><b>2.4.2</b> Fold change and statistical test calcul</a></li>
+<li class="chapter" data-level="2.4.3" data-path="students-test.html"><a href="students-test.html#differentially-expressed-proteins"><i class="fa fa-check"></i><b>2.4.3</b> Differentially expressed proteins</a></li>
+<li class="chapter" data-level="2.4.4" data-path="students-test.html"><a href="students-test.html#volcano-plot"><i class="fa fa-check"></i><b>2.4.4</b> Volcano Plot</a></li>
+<li class="chapter" data-level="2.4.5" data-path="students-test.html"><a href="students-test.html#ven-diagramm"><i class="fa fa-check"></i><b>2.4.5</b> Ven Diagramm</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="limma.html"><a href="limma.html"><i class="fa fa-check"></i><b>3</b> LIMMA</a><ul>
+<li class="chapter" data-level="3.1" data-path="limma.html"><a href="limma.html#loading-and-visualizing-the-data-1"><i class="fa fa-check"></i><b>3.1</b> loading and visualizing the data</a></li>
+<li class="chapter" data-level="3.2" data-path="limma.html"><a href="limma.html#normalization-1"><i class="fa fa-check"></i><b>3.2</b> Normalization</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="limma.html"><a href="limma.html#design-and-contrast-matrix"><i class="fa fa-check"></i><b>3.2.1</b> design and contrast matrix</a></li>
+<li class="chapter" data-level="3.2.2" data-path="limma.html"><a href="limma.html#applying-limma"><i class="fa fa-check"></i><b>3.2.2</b> applying limma</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="limma.html"><a href="limma.html#differential-expression-annalysis-1"><i class="fa fa-check"></i><b>3.3</b> Differential expression annalysis</a><ul>
+<li class="chapter" data-level="3.3.1" data-path="limma.html"><a href="limma.html#fitting-the-model"><i class="fa fa-check"></i><b>3.3.1</b> fitting the model</a></li>
+<li class="chapter" data-level="3.3.2" data-path="limma.html"><a href="limma.html#extracting-the-results"><i class="fa fa-check"></i><b>3.3.2</b> Extracting the results</a></li>
+<li class="chapter" data-level="3.3.3" data-path="limma.html"><a href="limma.html#differentially-expressed-proteins-1"><i class="fa fa-check"></i><b>3.3.3</b> Differentially expressed proteins</a></li>
+<li class="chapter" data-level="3.3.4" data-path="limma.html"><a href="limma.html#volcano-plot-1"><i class="fa fa-check"></i><b>3.3.4</b> Volcano Plot</a></li>
+<li class="chapter" data-level="3.3.5" data-path="limma.html"><a href="limma.html#ven-diagramm-1"><i class="fa fa-check"></i><b>3.3.5</b> Ven Diagramm</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="anova.html"><a href="anova.html"><i class="fa fa-check"></i><b>4</b> ANOVA</a><ul>
+<li class="chapter" data-level="4.1" data-path="anova.html"><a href="anova.html#loading-and-visualizing-the-data-2"><i class="fa fa-check"></i><b>4.1</b> loading and visualizing the data</a></li>
+<li class="chapter" data-level="4.2" data-path="anova.html"><a href="anova.html#log-transform"><i class="fa fa-check"></i><b>4.2</b> log transform</a></li>
+<li class="chapter" data-level="4.3" data-path="anova.html"><a href="anova.html#normalization-2"><i class="fa fa-check"></i><b>4.3</b> Normalization</a></li>
+<li class="chapter" data-level="4.4" data-path="anova.html"><a href="anova.html#differential-expression-annalysis-2"><i class="fa fa-check"></i><b>4.4</b> Differential expression annalysis</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="anova.html"><a href="anova.html#anova-test"><i class="fa fa-check"></i><b>4.4.1</b> ANOVA test</a></li>
+<li class="chapter" data-level="4.4.2" data-path="anova.html"><a href="anova.html#differentially-expressed-proteins-2"><i class="fa fa-check"></i><b>4.4.2</b> Differentially expressed proteins</a></li>
+<li class="chapter" data-level="4.4.3" data-path="anova.html"><a href="anova.html#post-hoc-analysis"><i class="fa fa-check"></i><b>4.4.3</b> post hoc analysis</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="comparison-of-the-differents-statistical-test.html"><a href="comparison-of-the-differents-statistical-test.html"><i class="fa fa-check"></i><b>5</b> Comparison of the differents statistical test</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">SWATH-MS quantification differential expression analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="comparison-of-the-differents-statistical-test" class="section level1">
+<h1><span class="header-section-number">5</span> Comparison of the differents statistical test</h1>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resSCL &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;resSCL.rds&quot;</span>)
+resLIMMA &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;resLIMMA.rds&quot;</span>)
+resANOVA &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;resANOVA.rds&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setdiff</span>(resANOVA,resSCL)</code></pre></div>
+<pre><code>## [1] &quot;sp|P01859|IGHG2_HUMAN&quot; &quot;sp|P06311|KV311_HUMAN&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="st">&quot;&quot;</span>)</code></pre></div>
+<pre><code>## [1] &quot;&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setdiff</span>(resLIMMA, resANOVA)</code></pre></div>
+<pre><code>##  [1] &quot;sp|P02790|HEMO_HUMAN&quot;  &quot;sp|P01023|A2MG_HUMAN&quot; 
+##  [3] &quot;sp|P02649|APOE_HUMAN&quot;  &quot;sp|Q06033|ITIH3_HUMAN&quot;
+##  [5] &quot;sp|P07225|PROS_HUMAN&quot;  &quot;sp|P05546|HEP2_HUMAN&quot; 
+##  [7] &quot;sp|P33151|CADH5_HUMAN&quot; &quot;sp|P00747|PLMN_HUMAN&quot; 
+##  [9] &quot;sp|P10643|CO7_HUMAN&quot;   &quot;sp|P27169|PON1_HUMAN&quot; 
+## [11] &quot;sp|P10909|CLUS_HUMAN&quot;  &quot;sp|P07360|CO8G_HUMAN&quot; 
+## [13] &quot;sp|P35858|ALS_HUMAN&quot;   &quot;sp|Q96IY4|CBPB2_HUMAN&quot;
+## [15] &quot;sp|P07358|CO8B_HUMAN&quot;  &quot;sp|P02675|FIBB_HUMAN&quot; 
+## [17] &quot;sp|P60709|ACTB_HUMAN&quot;  &quot;sp|P03952|KLKB1_HUMAN&quot;
+## [19] &quot;sp|P01019|ANGT_HUMAN&quot;  &quot;sp|P19652|A1AG2_HUMAN&quot;
+## [21] &quot;sp|P02748|CO9_HUMAN&quot;   &quot;sp|P02743|SAMP_HUMAN&quot; 
+## [23] &quot;sp|P00739|HPTR_HUMAN&quot;  &quot;sp|P51884|LUM_HUMAN&quot;  
+## [25] &quot;sp|P02652|APOA2_HUMAN&quot; &quot;sp|P04217|A1BG_HUMAN&quot; 
+## [27] &quot;sp|P18428|LBP_HUMAN&quot;   &quot;sp|P02765|FETUA_HUMAN&quot;
+## [29] &quot;sp|P08697|A2AP_HUMAN&quot;  &quot;sp|P01857|IGHG1_HUMAN&quot;
+## [31] &quot;sp|P05543|THBG_HUMAN&quot;  &quot;sp|P00450|CERU_HUMAN&quot; 
+## [33] &quot;sp|P07996|TSP1_HUMAN&quot;  &quot;sp|P02655|APOC2_HUMAN&quot;
+## [35] &quot;sp|P23142|FBLN1_HUMAN&quot; &quot;sp|P01880|IGHD_HUMAN&quot; 
+## [37] &quot;sp|P01860|IGHG3_HUMAN&quot; &quot;sp|P0CG06|LAC3_HUMAN&quot; 
+## [39] &quot;sp|P01008|ANT3_HUMAN&quot;  &quot;sp|P01031|CO5_HUMAN&quot;  
+## [41] &quot;sp|Q96PD5|PGRP2_HUMAN&quot; &quot;sp|P01042|KNG1_HUMAN&quot; 
+## [43] &quot;sp|B9A064|IGLL5_HUMAN&quot; &quot;sp|P02671|FIBA_HUMAN&quot; 
+## [45] &quot;sp|P02679|FIBG_HUMAN&quot;  &quot;sp|P01609|KV117_HUMAN&quot;
+## [47] &quot;sp|P06309|KV205_HUMAN&quot; &quot;sp|P00734|THRB_HUMAN&quot; 
+## [49] &quot;sp|P05155|IC1_HUMAN&quot;   &quot;sp|P02647|APOA1_HUMAN&quot;
+## [51] &quot;sp|P02775|CXCL7_HUMAN&quot; &quot;sp|P01611|KV119_HUMAN&quot;
+## [53] &quot;sp|P06331|HV209_HUMAN&quot; &quot;sp|P04208|LV106_HUMAN&quot;
+## [55] &quot;sp|P04114|APOB_HUMAN&quot;  &quot;sp|P01602|KV110_HUMAN&quot;
+## [57] &quot;sp|P08185|CBG_HUMAN&quot;   &quot;sp|P02751|FINC_HUMAN&quot; 
+## [59] &quot;sp|P06727|APOA4_HUMAN&quot; &quot;sp|O95445|APOM_HUMAN&quot; 
+## [61] &quot;sp|P06314|KV404_HUMAN&quot; &quot;sp|O75636|FCN3_HUMAN&quot; 
+## [63] &quot;sp|P04433|KV309_HUMAN&quot; &quot;sp|P0DJI8|SAA1_HUMAN&quot; 
+## [65] &quot;sp|Q14624|ITIH4_HUMAN&quot; &quot;sp|P00751|CFAB_HUMAN&quot; 
+## [67] &quot;sp|P02750|A2GL_HUMAN&quot;  &quot;sp|P13671|CO6_HUMAN&quot;  
+## [69] &quot;sp|P22792|CPN2_HUMAN&quot;  &quot;sp|P02763|A1AG1_HUMAN&quot;
+## [71] &quot;sp|P01009|A1AT_HUMAN&quot;  &quot;sp|P02656|APOC3_HUMAN&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(VennDiagram)
+
+<span class="kw">grid.newpage</span>()
+<span class="kw">draw.triple.venn</span>(<span class="dt">area1 =</span> <span class="kw">length</span>(resSCL), 
+                 <span class="dt">area2 =</span> <span class="kw">length</span>(resLIMMA), 
+                 <span class="dt">area3 =</span> <span class="kw">length</span>(resANOVA), 
+                 <span class="dt">n12 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resSCL,resLIMMA)), 
+                 <span class="dt">n23 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resLIMMA,resANOVA)), 
+                 <span class="dt">n13 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resSCL,resANOVA)), 
+                 <span class="dt">n123 =</span> <span class="kw">length</span>(<span class="kw">Reduce</span>(intersect, <span class="kw">list</span>(resSCL,resLIMMA,resANOVA))), 
+                 <span class="dt">category =</span> <span class="kw">c</span>(<span class="st">&quot;scaling and centering&quot;</span>, <span class="st">&quot;LIMMA&quot;</span>, <span class="st">&quot;ANOVA&quot;</span>),
+                 <span class="dt">cat.dist =</span> <span class="kw">c</span>(-<span class="fl">0.06</span>, <span class="dv">0</span>, -<span class="fl">0.01</span>),
+                 <span class="dt">lty =</span> <span class="st">&quot;blank&quot;</span>, <span class="dt">fill =</span> <span class="kw">c</span>(<span class="st">&quot;skyblue&quot;</span>, <span class="st">&quot;pink1&quot;</span>, <span class="st">&quot;mediumorchid&quot;</span>))</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-38-1.png" width="672" /></p>
+<pre><code>## (polygon[GRID.polygon.1724], polygon[GRID.polygon.1725], polygon[GRID.polygon.1726], polygon[GRID.polygon.1727], polygon[GRID.polygon.1728], polygon[GRID.polygon.1729], text[GRID.text.1730], text[GRID.text.1731], text[GRID.text.1732], text[GRID.text.1733], text[GRID.text.1734], text[GRID.text.1735], text[GRID.text.1736], text[GRID.text.1737], text[GRID.text.1738], text[GRID.text.1739])</code></pre>
+
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="anova.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
