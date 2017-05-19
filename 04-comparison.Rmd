@@ -1,0 +1,30 @@
+#Comparison of the differents statistical test
+
+```{r}
+resSCL <- readRDS("resSCL.rds")
+resLIMMA <- readRDS("resLIMMA.rds")
+resANOVA <- readRDS("resANOVA.rds")
+```
+
+```{r}
+setdiff(resANOVA,resSCL)
+print("")
+setdiff(resLIMMA, resANOVA)
+```
+
+```{r, message=TRUE}
+library(VennDiagram)
+
+grid.newpage()
+draw.triple.venn(area1 = length(resSCL), 
+                 area2 = length(resLIMMA), 
+                 area3 = length(resANOVA), 
+                 n12 = length(intersect(resSCL,resLIMMA)), 
+                 n23 = length(intersect(resLIMMA,resANOVA)), 
+                 n13 = length(intersect(resSCL,resANOVA)), 
+                 n123 = length(Reduce(intersect, list(resSCL,resLIMMA,resANOVA))), 
+                 category = c("scaling and centering", "LIMMA", "ANOVA"),
+                 cat.dist = c(-0.06, 0, -0.01),
+                 lty = "blank", fill = c("skyblue", "pink1", "mediumorchid"))
+```
+

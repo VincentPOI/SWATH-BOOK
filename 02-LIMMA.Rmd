@@ -1,0 +1,199 @@
+# LIMMA
+
+
+Here we gonna use the limma package to perform the normalization of the data and the differential expression annalysis.
+Limma is a Bioconductor package which uses linear model for analysing experiments and the assessment of differential expression.
+
+## loading and visualizing the data 
+```{r}
+data<-read.table("SWATH.example.data.csv", sep=",",header=T, row.names = 1)
+DT::datatable(data)
+boxplot(data, ylab="log2(Intensity)", xlab="samples", main = "distribution of Intensity") 
+hist(as.numeric(unlist(data)), main = "Histogram of Intensity distribution",  xlab = "Intensity")
+```
+
+## Normalization
+### design and contrast matrix
+
+In order to perform the normalization with the limma package we need to define the design matrix generated with model.matrix(), which identify which sample belong to which condition.    
+
+
+```{r}
+#for this specific data :
+exp.design <- data.frame(samples = colnames(data), condition = 1) ## first we define a matrix containing the experiment design information by associating a sample name with the condition name
+exp.design$condition[1:10] = "control"
+exp.design$condition[11:20] = "lessone"
+exp.design$condition[21:30] = "onetofive"
+exp.design$condition[31:40] = "adult"
+
+design <- model.matrix(~0 + exp.design$condition, data = exp.design) ## model.matrix() use the experiment design to generate a matrix.
+colnames(design) <- sort(unique(exp.design$condition))
+row.names(design) <- exp.design$samples
+DT::datatable(as.data.frame(design))
+```
+
+
+We also need to create a contrast matrix generated with the limma function makeContrast(). This matrix allows to define the comparisons between the differents conditions to perform.
+
+```{r}
+contrast <- makeContrasts(adult-control, lessone-control, onetofive-control, levels=design)
+DT::datatable(as.data.frame(contrast))
+```
+
+
+### applying limma
+
+Now, we can normalise the dataset using the following commands. The calcNormFactors(), calculates the normalization factors to scale the library sizes.
+
+The limma package (since version 3.16.0) offers the voom function that will normalise read counts and apply a linear model to the normalised data before computing moderated t-statistics of differential expression.
+
+The returned data object consists of a few attributes, which you can check using names(y), one of which is the normalised expression (y$E) values in log2 scale.
+
+```{r}
+library(limma)
+library(edgeR)
+
+dge <- DGEList(data)
+dge <- calcNormFactors(dge)
+y <- voom(dge, design)
+norm.data <- y$E
+DT::datatable(as.data.frame(norm.data))
+boxplot(norm.data, ylab="normalized Intensity", xlab="samples", main = "distribution of the normalized Intensity")
+hist(norm.data, main = "Histogram of Intensity distribution",  xlab = "Intensity")
+```
+
+
+## Differential expression annalysis
+### fitting the model
+
+To fit the model, use the lmFit() function, which takes in the normalised data object and the design matrix:
+
+```{r}
+fit <- lmFit(y, design)
+```
+
+Refit the model using the comparisons defined:
+```{r}
+fit2 <- contrasts.fit(fit, contrast)
+fit2 <- eBayes(fit2)
+```
+
+
+### Extracting the results 
+
+The topTable function summarises the output from limma in a table format.
+```{r}
+adult.vs.c <- topTable(fit2, coef = "adult - control", n = nrow(fit2))
+lessone.vs.control <- topTable(fit2, coef = "lessone - control", n = nrow(fit2))
+onetofive.vs.control <- topTable(fit2, coef = "onetofive - control", n = nrow(fit2))
+DT::datatable(adult.vs.c) ; DT::datatable(lessone.vs.control) ; DT::datatable(onetofive.vs.control)
+```
+
+
+We keep only the values of interest like the p value, the adjusted p value and the fold change to create the volcano plot. The results for the different pairwise comparison are stored in a list of dataframe. 
+```{r}
+adult.vs.c$protein <- row.names(adult.vs.c)
+row.names(adult.vs.c) <- NULL
+adult.vs.c <- adult.vs.c[, c(7, 4, 5, 1)]
+
+lessone.vs.control$protein <- row.names(lessone.vs.control)
+row.names(lessone.vs.control) <- NULL
+lessone.vs.control <- lessone.vs.control[, c(7, 4, 5, 1)]
+
+onetofive.vs.control$protein <- row.names(onetofive.vs.control)
+row.names(onetofive.vs.control) <- NULL
+onetofive.vs.control <- onetofive.vs.control[, c(7, 4, 5, 1)]
+
+Results <- list(adult.vs.c, lessone.vs.control, onetofive.vs.control)
+```
+
+
+
+
+### Differentially expressed proteins
+
+A protein is considered differentially expressed if its p.value and fold change are superior to a determined threshold. The fold change represent how much a protein is differentially expressed between two conditions and the p value allows to evaluate the statistical significance of this difference.
+
+```{r}
+
+thresh_fc <- 0.5
+thresh_p <- 0.05
+deProt <- Results
+for(i in 1:length(Results)){
+    fc = as.data.frame(deProt[[i]])[,4]
+    p = as.data.frame(deProt[[i]])[,3]
+    dt <-as.data.frame(deProt[[i]])
+    deProt[[i]] <- dt[which(p<=thresh_p & abs(fc)>=thresh_fc),]
+    print(DT::datatable(as.data.frame(deProt[[i]])))
+  }
+```
+
+
+
+
+### Volcano Plot
+
+For each pairwise comparison in the results list a volcano plot is created, volcano plots are the best way to visualise the p value and the fold change at the same time. 
+
+```{r}
+
+library(ggplot2)
+library(ggrepel)
+
+tresh_fc = 0.5 ## Fold change threshold
+tresh_p = 0.05 ## p.value treshold
+
+for(i in 1:length(Results)){
+  
+  plotTitle <- substr(colnames(Results[[i]])[2], 9 ,nchar(colnames(Results[[i]])[2]))
+  values <- as.data.frame(Results[[i]])
+  forplot <- data.frame(x=as.numeric(values[,4]), y=-log10(values[,3]), id=as.character(values[,1]))
+  tmp <- forplot[as.numeric(forplot$y)>=-log10(tresh_fc) & abs(forplot$x)>tresh_fc,]
+  p <- ggplot(forplot) + geom_point(aes(x, y , color = ifelse(y>=-log10(tresh_p) & abs(x)>=tresh_fc, "not signi", "FC")),show.legend = F) +
+    scale_color_manual(values = c("blue", "red")) +
+    geom_text_repel(data = subset(forplot, abs(forplot$x)>=tresh_fc & forplot$y>=-log10(tresh_p)),
+                    aes(x,y,label = id),
+                    size = 2) +
+    geom_vline(xintercept = tresh_fc ) +
+    geom_vline(xintercept = -tresh_fc) + 
+    geom_hline(yintercept = -log10(tresh_p)) + 
+    labs(title = plotTitle,x="log2(Fold-change)", y="-log10(P.Value)") + theme_bw() 
+    print(p)
+}
+```
+
+### Ven Diagramm
+
+List of the proteins deemed as differentially expressed in all of the pairwise comparisons :
+
+```{r}
+res <- vector()
+for(i in 1:length(deProt)){
+  res <- append(res, as.character(deProt[[i]][,1]))
+}
+res <- unique(res)
+print(res)
+saveRDS(res, "resLIMMA.rds")
+```
+
+
+This Venn diagram allows to visualize the number of proteins deemed to be differentially expressed in each pairwise comparison.
+
+
+```{r}
+library(VennDiagram)
+
+grid.newpage()
+draw.triple.venn(area1 = length(deProt[[1]][,1]),
+               area2 = length(deProt[[2]][,1]),
+               area3 = length(deProt[[3]][,1]),
+               n12 = length(intersect(deProt[[1]][,1],deProt[[2]][,1])),
+               n23 = length(intersect(deProt[[2]][,1],deProt[[3]][,1])),
+               n13 = length(intersect(deProt[[1]][,1],deProt[[3]][,1])),
+               n123 = length(Reduce(intersect, list(deProt[[1]][,1],deProt[[2]][,1],deProt[[3]][,1]))),
+               category = c("a-c","l-c","o-c"),
+               lty = "blank", fill = c("skyblue", "pink1", "mediumorchid"))
+```
+
+
+

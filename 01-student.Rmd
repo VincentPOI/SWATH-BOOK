@@ -1,0 +1,196 @@
+# Student's test
+
+In this part the data we will normalize the data usinfg the mean center and scalling method, and to assess statistical significance of the differential expression we will use the student's test.
+
+## Loading and visualizing the data 
+```{r}
+data<-read.table("SWATH.example.data.csv", sep=",",header=T, row.names = 1)
+DT::datatable(data)
+boxplot(data, ylab="Intensity", xlab="samples") 
+hist(as.numeric(unlist(data)), main = "Histogram of Intensity distribution",  xlab = "Intensity")
+```
+
+## Log transformation
+
+The data is log transformed so that:  
+-the spread is even across the intensity range  
+-the variability stays constant at all intensity levels  
+-the distribution of experimental errors is normal (necessary to apply most of the statistical test)   
+-the distribution of intensity is bell shaped  
+This allows to apply statistical test that relies on those assumptions.
+
+```{r}
+data <- log2(data)
+boxplot(data, ylab="Intensity", xlab="samples") 
+hist(as.numeric(unlist(data)), main = "Histogram of Intensity distribution",  xlab = "Intensity")
+```
+
+## Normalization
+
+Normalization allows to resolve the bias and errors introduced between the samples by the experimental tools or the samples preparation. Normalization relies on the fact that most of the proteins are expected to be expressed the same way between the samples, so it is necessary to remove the differences induced by the experiment to not overestimate the differencial expression. here we use the mean center and scaling normalization : centering assure that the mean of the different samples is equal (set to 0), and scaling sets the standard deviation to 1.  
+  
+
+```{r}
+norm.data <- scale(data) ##mean center and scaling normalization
+boxplot(norm.data, ylab="Intensity", xlab="samples")
+
+```
+
+
+## Differential expression annalysis
+### experimental design
+
+In order to perform the pairwise comparison we need to define the experimental design :  
+- the design matrix generated with model.matrix(), which identify which sample belong to which condition.  
+```{r}
+#for this specific data :
+exp.design <- data.frame(samples = colnames(data), condition = 1)
+exp.design$condition[1:10] = "control"
+exp.design$condition[11:20] = "lessone"
+exp.design$condition[21:30] = "onetofive"
+exp.design$condition[31:40] = "adult"
+
+design <- model.matrix(~0 + exp.design$condition, data = exp.design)
+colnames(design) <- sort(unique(exp.design$condition))
+row.names(design) <- exp.design$samples
+DT::datatable(as.data.frame(design))
+```
+
+
+- the contrast matrix generated with makeContrasts(), which define the comparison to perform between the differents conditions.
+```{r}
+library(limma)
+contrast <- makeContrasts(adult-control, lessone-control, onetofive-control, adult+lessone+onetofive-control, levels=design)
+DT::datatable(as.data.frame(contrast))
+```
+
+
+
+### Fold change and statistical test calcul
+
+For each comparison and for each protein the fold change and the student p value are calculated. the results are stocked in a list of data frame (each data frame is the result for one comparison defined in the contrast matrix).
+The fold change is the mean intensity difference between two condition, a fold change of zero means no difference a negative one a down-regulation and a positive one an up-regulation.
+
+```{r}
+  ## in this example there are four pairwise comparison to perform:  
+
+
+  nbComp<-ncol(contrast)
+  Results<-list() ## a list of data frames containing the results
+  
+  for (i in 1:nbComp){ ## for each comparison defined in the contrast matrix :
+    
+    c1<-row.names(contrast)[contrast[,i] == 1 ] ## names of the first conditions of the pairwise comparison
+    c2<-row.names(contrast)[contrast[,i] == -1 ] ## names of the second conditions of the pairwise comparison
+    
+    samplesc1 <- row.names(design)[row(as.matrix(design[,c1]))[design[,c1]==1]] ## names of the samples belonging to the first conditions of the pairwise comparison
+    samplesc2 <- row.names(design)[row(as.matrix(design[,c2]))[design[,c2]==1]] ## names of the samples belonging to the second conditions of the pairwise comparison
+    
+    colc1 <- which(colnames(norm.data) %in% samplesc1) ## columns number in the dataset of the samples for the first comparison of the pairwise comparison
+    colc2 <- which(colnames(norm.data) %in% samplesc2) ## columns number in the dataset of the samples for the second comparison of the pairwise comparison
+    
+    p.value<-apply(norm.data,1,function(x){t.test(as.numeric(x[colc2]),as.numeric(x[colc1]), alternative = "t") $p.value}) ## calcul of the p.value of the student test between the conditions of the pairwise comparison
+    adjust.p.value<-p.adjust(p.value, method = "BH") ## corrrection of the p.value with the Benjamini & Hochberg technique
+    
+    fc<-rowMeans(norm.data[,colc1])-rowMeans(norm.data[,colc2]) ## fold change calcul between the conditions of the pairwise comparison
+    
+    ## stocking the data frame containing the results in a list :
+    Results[[i]]<-data.frame(protein=c(row.names(norm.data)))
+    Results[[i]][paste("p.value.",colnames(contrast)[i],sep="")]=c(p.value)
+    Results[[i]][paste("adjust.p.value.",colnames(contrast)[i],sep="")]=c(adjust.p.value)
+    Results[[i]][paste("fc.",colnames(contrast)[i],sep="")]=c(fc)
+    print(DT::datatable(Results[[i]]))
+  }
+
+```
+
+### Differentially expressed proteins
+
+A protein is considered differentially expressed if its p.value and fold change are superior to a determined threshold. The fold change represent how much a protein is differentially expressed between two conditions and the p value allows to evaluate the statistical significance of this difference.
+
+```{r}
+
+thresh_fc <- 0.5
+thresh_p <- 0.05
+deProt <- Results
+for(i in 1:length(Results)){
+    fc = as.data.frame(deProt[[i]])[,4]
+    p = as.data.frame(deProt[[i]])[,3]
+    dt <-as.data.frame(deProt[[i]])
+    deProt[[i]] <- dt[which(p<=thresh_p & abs(fc)>=thresh_fc),]
+    print(DT::datatable(as.data.frame(deProt[[i]])))
+  }
+```
+
+
+### Volcano Plot
+
+For each pairwise comparison in the results list a volcano plot is created, volcano plots are the best way to visualise the p value and the fold change at the same time.
+
+```{r}
+
+library(ggplot2)
+library(ggrepel)
+
+tresh_fc = 0.5 ## Fold change threshold
+tresh_p = 0.05 ## p.value treshold
+
+for(i in 1:length(Results)){
+  plotTitle <- substr(colnames(Results[[i]])[2], 9 ,nchar(colnames(Results[[i]])[2]))
+  values <- as.data.frame(Results[[i]])
+  forplot <- data.frame(x=as.numeric(values[,4]), y=-log10(values[,3]), id=as.character(values[,1]))
+  tmp <- forplot[as.numeric(forplot$y)>=-log10(tresh_fc) & abs(forplot$x)>tresh_fc,]
+  p <- ggplot(forplot) + geom_point(aes(x, y , color = ifelse(y>=-log10(tresh_p) & abs(x)>=tresh_fc, "not signi", "FC")),show.legend = F) +
+    scale_color_manual(values = c("blue", "red")) +
+    geom_text_repel(data = subset(forplot, abs(forplot$x)>=tresh_fc & forplot$y>=-log10(tresh_p)),
+                    aes(x,y,label = id),
+                    size = 2) +
+    geom_vline(xintercept = tresh_fc ) + 
+    geom_vline(xintercept = -tresh_fc) + 
+    geom_hline(yintercept = -log10(tresh_p)) + 
+    labs(title = plotTitle,x="log2(Fold-change)", y="-log10(P.Value)") + theme_bw() 
+    print(p)
+}
+```
+
+
+### Ven Diagramm
+
+List of the proteins deemed as differentially expressed in all of the pairwise comparisons :
+
+```{r}
+res <- vector()
+for(i in 1:length(deProt)){
+  res <- append(res, as.character(deProt[[i]][,1]))
+}
+saveRDS(res, "resSCL.rds")
+res <- unique(res)
+print(res)
+
+```
+
+This Venn diagram allows to visualize the number of proteins deemed to be differentially expressed in each pairwise comparison.
+
+
+```{r}
+library(VennDiagram)
+grid.newpage()
+draw.quad.venn(area1 = length(deProt[[1]][,1]),
+               area2 = length(deProt[[2]][,1]),
+               area3 = length(deProt[[3]][,1]),
+               area4 = length(deProt[[4]][,1]),
+               n12 = length(intersect(deProt[[1]][,1],deProt[[2]][,1])),
+               n13 = length(intersect(deProt[[1]][,1],deProt[[3]][,1])),
+               n14 = length(intersect(deProt[[1]][,1],deProt[[4]][,1])),
+               n23 = length(intersect(deProt[[2]][,1],deProt[[3]][,1])),
+               n24 = length(intersect(deProt[[2]][,1],deProt[[4]][,1])),
+               n34 = length(intersect(deProt[[3]][,1],deProt[[4]][,1])),
+               n123 = length(Reduce(intersect, list(deProt[[1]][,1],deProt[[2]][,1],deProt[[3]][,1]))),
+               n124 = length(Reduce(intersect, list(deProt[[1]][,1],deProt[[2]][,1],deProt[[4]][,1]))),
+               n134 = length(Reduce(intersect, list(deProt[[1]][,1],deProt[[3]][,1],deProt[[4]][,1]))),
+               n234 = length(Reduce(intersect, list(deProt[[2]][,1],deProt[[3]][,1],deProt[[4]][,1]))),
+               n1234 = length(Reduce(intersect,list(deProt[[1]][,1],deProt[[2]][,1],deProt[[3]][,1],deProt[[4]][,1]))),
+               category = c("a-c","l-c","o-c","a+l+o-c"),
+               lty = "blank", fill = c("skyblue", "pink1", "mediumorchid", "orange"))
+```
+

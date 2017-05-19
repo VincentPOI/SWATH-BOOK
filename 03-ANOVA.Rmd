@@ -1,0 +1,167 @@
+#ANOVA
+
+This worflow shows how to process data from SWATH-MS protein quantification, in order to study differential expression of the proteins between the different conditions.
+
+The data in this example come from : Bjelosevic S, Pascovici D, Ping H, et.al. Quantitative age-specific variability of plasma proteins in healthy neonates, children and adults. Molecular & Cellular Proteomics (March 23 2017). Four conditions are compared each conditions have ten replicates :  
+-neonates  
+-child less than one year old  
+-child between 1 and five years old  
+-adults  
+
+146 proteins were identified and quantified. 
+
+Here we use ANOVA (analysis of variance) to identify significantly differentially expressed protein. The ANOVA test the statistical significance of the mean difference between several groups. But ANOVA doesn't allow to identify between exactly which groups this difference is significant that is why a POST HOC test is needed to precise the groups between which the difference is the most significant.
+
+## loading and visualizing the data 
+```{r}
+data<-read.table("SWATH.example.data.csv", sep=",",header=T, row.names = 1)
+DT::datatable(data)
+boxplot(data, ylab="Intensity", xlab="samples", main = "distribution of Intensity") 
+hist(as.numeric(unlist(data)), main = "Histogram of Intensity distribution",  xlab = "Intensity")
+```
+
+## log transform
+The data is log transformed so that:  
+-the spread is even across the intensity range  
+-the variability stays constant at all intensity levels  
+-the distribution of experimental errors is normal  
+-the distribution of intensity is bell shaped  
+
+```{r}
+data <- log2(data)
+boxplot(data, ylab="Intensity", xlab="samples") 
+hist(as.numeric(unlist(data)), main = "Histogram of Intensity distribution",  xlab = "Intensity")
+```
+
+
+## Normalization
+
+Normalization allows to resolve the bias and errors introduced between the samples by the experimental tools or the samples preparation. Normalization relies on the fact that most of the proteins are expected to be expressed the same way between the samples, so it is necessary to remove the differences induced by the experiment to not overestimate the differencial expression. here we use the mean center and scaling normalization : centering assure that the mean of the different samples is equal (set to 0), and scaling sets the standard deviation to 1. 
+
+```{r}
+norm.data <- scale(data) ##mean center and scaling normalization
+boxplot(norm.data, ylab="Intensity", xlab="samples")
+```
+
+
+## Differential expression annalysis
+### ANOVA test
+
+The type of ANOVA test to perform is a one-way ANOVA on each protein.
+```{r, warning=FALSE}
+Results <- as.data.frame(norm.data)
+## Calcul of the mean Intensity for each conditions : 
+Results$control <- rowMeans(norm.data[, c(1:10)])
+Results$less1 <- rowMeans(norm.data[, c(11:20)])
+Results$onetofive <- rowMeans(norm.data[, c(21:30)])
+Results$adult <- rowMeans(norm.data[, c(31:40)])
+Results <- Results[, c(41, 42, 43, 44)]
+
+
+d <- data.frame(mean = 1:40, group = 1:40)
+for (i in 1:nrow(norm.data)) {
+  d$prot <- as.numeric(norm.data[i, ])
+  d$group[1:10] <- "control"
+  d$group[11:20] <- "less1"
+  d$group[21:30] <- "onetofive"
+  d$group[31:40] <- "adult"
+  model <- lm(formula = prot ~ group, data = d)
+  Results$p[i] <- anova(model)$"Pr(>F)"
+  Results$p[i] <- p.adjust(Results$p[i], method = "BH") ## multiple testing correction with de Benjamini Hochberg technique
+}
+```
+
+### Differentially expressed proteins
+
+
+Calcul of the maximum fold change for each protein (difference between the highest and the lowest intensity mean) : 
+```{r}
+Results$FC <-apply(Results[, 1:4], 1, max) - apply(Results[, 1:4], 1, min)
+DT::datatable(Results)
+```
+
+
+A protein is considered differentially expressed if its p.value and fold change are superior to a determined threshold. The fold change represent how much a protein is differentially expressed between two conditions and the p value allows to evaluate the statistical significance of this difference.
+```{r}
+resultsANOVA <-Results[which(Results$p <= 0.05 & abs(Results$FC) >= 0.5), ]
+DT::datatable(resultsANOVA)
+```
+
+
+### post hoc analysis
+
+The post hoc analysis is done using the tukey's test to determine the significants pairwise comparisons.
+```{r}
+DEprot <- as.data.frame(data[which(row.names(data) %in% row.names(resultsANOVA)),])
+d <- data.frame(mean = 1:40, group = 1:40)
+for (i in 1:nrow(DEprot)) {
+  d$prot <- as.numeric(DEprot[i, ])
+  d$group[1:10] <- "control"
+  d$group[11:20] <- "less1"
+  d$group[21:30] <- "onetofive"
+  d$group[31:40] <- "adult"
+  print(paste0(row.names(DEprot[i,]), " :"))
+  print(TukeyHSD(aov(prot ~ group, data = d)))
+}
+```
+
+
+
+
+
+```{r}
+heat <- as.matrix(data[which(row.names(data) %in% row.names(resultsANOVA)),])
+```
+
+
+
+```{r}
+library(gplots)
+heatmap.2(heat, trace = "none") 
+heatmap.2(as.matrix(data), trace = "none") 
+```
+
+
+```{r}
+library(reshape2)
+heat <- melt(heat)
+names(heat) <- c("protein", "sample", "value")
+
+library(ggplot2)
+ggplot(heat, aes(sample, protein )) +
+  geom_tile(aes(fill = value), color = "white") +
+  scale_fill_gradient(low = "red", high = "steelblue") +
+  ylab("List of genes ") +
+  xlab("List of patients") +
+  theme(legend.title = element_text(size = 10),
+        legend.text = element_text(size = 12),
+        plot.title = element_text(size=16),
+        axis.title=element_text(size=14,face="bold"),
+        axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(fill = "Expression level")
+```
+
+
+```{r}
+  plotTitle <- "Results of the ANOVA tests perform on each protein"
+  values <- as.data.frame(Results)
+  forplot <- data.frame(x=as.numeric(values[,6]), y=-log10(values[,5]), id=row.names(values))
+  tmp <- forplot[as.numeric(forplot$y)>=-log10(tresh_fc) & abs(forplot$x)>tresh_fc,]
+  p <- ggplot(forplot) + geom_point(aes(x, y , color = ifelse(y>=-log10(tresh_p) & abs(x)>=tresh_fc, "not signi", "FC")),show.legend = F) +
+    scale_color_manual(values = c("blue", "red")) +
+    geom_text_repel(data = subset(forplot, abs(forplot$x)>=tresh_fc & forplot$y>=-log10(tresh_p)),
+                    aes(x,y,label = id),
+                    size = 2) +
+    geom_vline(xintercept = tresh_fc ) +
+    geom_vline(xintercept = -tresh_fc) + 
+    geom_hline(yintercept = -log10(tresh_p)) + 
+    labs(title = plotTitle,x="maximum Fold-change", y="-log10(P.Value)") + theme_bw() 
+    print(p)
+```
+
+
+```{r}
+res <- row.names(resultsANOVA)
+print(res)
+saveRDS(res, "resANOVA.rds")
+```
