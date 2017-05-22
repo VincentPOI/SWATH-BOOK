@@ -13,6 +13,8 @@ hist(as.numeric(unlist(data)), main = "Histogram of Intensity distribution",  xl
 ```
 
 ## Normalization
+
+
 ### design and contrast matrix
 
 In order to perform the normalization with the limma package we need to define the design matrix generated with model.matrix(), which identify which sample belong to which condition.    
@@ -21,7 +23,7 @@ In order to perform the normalization with the limma package we need to define t
 ```{r}
 #for this specific data :
 exp.design <- data.frame(samples = colnames(data), condition = 1) ## first we define a matrix containing the experiment design information by associating a sample name with the condition name
-exp.design$condition[1:10] = "control"
+exp.design$condition[1:10] = "neonates"
 exp.design$condition[11:20] = "lessone"
 exp.design$condition[21:30] = "onetofive"
 exp.design$condition[31:40] = "adult"
@@ -36,7 +38,7 @@ DT::datatable(as.data.frame(design))
 We also need to create a contrast matrix generated with the limma function makeContrast(). This matrix allows to define the comparisons between the differents conditions to perform.
 
 ```{r}
-contrast <- makeContrasts(adult-control, lessone-control, onetofive-control, levels=design)
+contrast <- makeContrasts(adult-neonates, lessone-neonates, onetofive-neonates, levels=design)
 DT::datatable(as.data.frame(contrast))
 ```
 
@@ -45,7 +47,7 @@ DT::datatable(as.data.frame(contrast))
 
 Now, we can normalise the dataset using the following commands. The calcNormFactors(), calculates the normalization factors to scale the library sizes.
 
-The limma package (since version 3.16.0) offers the voom function that will normalise read counts and apply a linear model to the normalised data before computing moderated t-statistics of differential expression.
+The limma package (since version 3.16.0) offers the voom function that will normalise the proteins intensity and apply a linear model to the normalised data before computing moderated t-statistics of differential expression.
 
 The returned data object consists of a few attributes, which you can check using names(y), one of which is the normalised expression (y$E) values in log2 scale.
 
@@ -83,28 +85,38 @@ fit2 <- eBayes(fit2)
 
 The topTable function summarises the output from limma in a table format.
 ```{r}
-adult.vs.c <- topTable(fit2, coef = "adult - control", n = nrow(fit2))
-lessone.vs.control <- topTable(fit2, coef = "lessone - control", n = nrow(fit2))
-onetofive.vs.control <- topTable(fit2, coef = "onetofive - control", n = nrow(fit2))
-DT::datatable(adult.vs.c) ; DT::datatable(lessone.vs.control) ; DT::datatable(onetofive.vs.control)
+adult.vs.neonates <- topTable(fit2, coef = "adult - neonates", n = nrow(fit2))
 ```
+```{r}
+lessone.vs.neonates <- topTable(fit2, coef = "lessone - neonates", n = nrow(fit2))
+```
+```{r}
+onetofive.vs.neonates <- topTable(fit2, coef = "onetofive - neonates", n = nrow(fit2))
+```
+
+```{r}
+DT::datatable(adult.vs.neonates, caption = "adult vs neonates")
+DT::datatable(lessone.vs.neonates, caption = "less than one vs neonates")
+DT::datatable(onetofive.vs.neonates, caption = "one to five vs neonates")
+```
+
 
 
 We keep only the values of interest like the p value, the adjusted p value and the fold change to create the volcano plot. The results for the different pairwise comparison are stored in a list of dataframe. 
 ```{r}
-adult.vs.c$protein <- row.names(adult.vs.c)
-row.names(adult.vs.c) <- NULL
-adult.vs.c <- adult.vs.c[, c(7, 4, 5, 1)]
+adult.vs.neonates$protein <- row.names(adult.vs.neonates)
+row.names(adult.vs.neonates) <- NULL
+adult.vs.neonates <- adult.vs.neonates[, c(7, 4, 5, 1)]
 
-lessone.vs.control$protein <- row.names(lessone.vs.control)
-row.names(lessone.vs.control) <- NULL
-lessone.vs.control <- lessone.vs.control[, c(7, 4, 5, 1)]
+lessone.vs.neonates$protein <- row.names(lessone.vs.neonates)
+row.names(lessone.vs.neonates) <- NULL
+lessone.vs.neonates <- lessone.vs.neonates[, c(7, 4, 5, 1)]
 
-onetofive.vs.control$protein <- row.names(onetofive.vs.control)
-row.names(onetofive.vs.control) <- NULL
-onetofive.vs.control <- onetofive.vs.control[, c(7, 4, 5, 1)]
+onetofive.vs.neonates$protein <- row.names(onetofive.vs.neonates)
+row.names(onetofive.vs.neonates) <- NULL
+onetofive.vs.neonates <- onetofive.vs.neonates[, c(7, 4, 5, 1)]
 
-Results <- list(adult.vs.c, lessone.vs.control, onetofive.vs.control)
+Results <- list(adult.vs.neonates, lessone.vs.neonates, onetofive.vs.neonates)
 ```
 
 
@@ -124,10 +136,13 @@ for(i in 1:length(Results)){
     p = as.data.frame(deProt[[i]])[,3]
     dt <-as.data.frame(deProt[[i]])
     deProt[[i]] <- dt[which(p<=thresh_p & abs(fc)>=thresh_fc),]
-    print(DT::datatable(as.data.frame(deProt[[i]])))
   }
 ```
-
+```{r, echo=FALSE, warning=FALSE}
+DT::datatable(as.data.frame(deProt[[1]]), caption = "adult vs neonates")
+DT::datatable(as.data.frame(deProt[[2]]), caption = "less than one vs neonates")
+DT::datatable(as.data.frame(deProt[[3]]), caption = "one to five vs neonates")
+```
 
 
 
@@ -135,32 +150,39 @@ for(i in 1:length(Results)){
 
 For each pairwise comparison in the results list a volcano plot is created, volcano plots are the best way to visualise the p value and the fold change at the same time. 
 
-```{r}
+```{r, warning=FALSE}
 
 library(ggplot2)
+library(plotly, quietly = TRUE) # using the plotly package to add interractivity to the plot
 library(ggrepel)
 
 tresh_fc = 0.5 ## Fold change threshold
 tresh_p = 0.05 ## p.value treshold
+nameVplot = c("adult vs neonates","less than one vs neonates","one to five vs neonates")
+VP <- list() #list containing the volcano to display them after the loop
+
 
 for(i in 1:length(Results)){
   
-  plotTitle <- substr(colnames(Results[[i]])[2], 9 ,nchar(colnames(Results[[i]])[2]))
   values <- as.data.frame(Results[[i]])
   forplot <- data.frame(x=as.numeric(values[,4]), y=-log10(values[,3]), id=as.character(values[,1]))
   tmp <- forplot[as.numeric(forplot$y)>=-log10(tresh_fc) & abs(forplot$x)>tresh_fc,]
-  p <- ggplot(forplot) + geom_point(aes(x, y , color = ifelse(y>=-log10(tresh_p) & abs(x)>=tresh_fc, "not signi", "FC")),show.legend = F) +
-    scale_color_manual(values = c("blue", "red")) +
-    geom_text_repel(data = subset(forplot, abs(forplot$x)>=tresh_fc & forplot$y>=-log10(tresh_p)),
-                    aes(x,y,label = id),
-                    size = 2) +
+  p <- ggplot(forplot) + geom_point(aes(x, y ,label = id, color = ifelse(y>=-log10(tresh_p) & abs(x)>=tresh_fc,"DE proteins", "not significant")),show.legend = F) +
+    scale_color_manual(values = c("red", "blue")) +
     geom_vline(xintercept = tresh_fc ) +
     geom_vline(xintercept = -tresh_fc) + 
     geom_hline(yintercept = -log10(tresh_p)) + 
-    labs(title = plotTitle,x="log2(Fold-change)", y="-log10(P.Value)") + theme_bw() 
-    print(p)
+    labs(title = nameVplot[i],x="log2(Fold-change)", y="-log10(P.Value)") + theme_bw() 
+    VP[[i]] <- p
 }
 ```
+
+```{r, warning=FALSE}
+layout(ggplotly(VP[[1]], tooltip = c("x","y","id")))
+layout(ggplotly(VP[[2]], tooltip = c("x","y","id")))
+layout(ggplotly(VP[[3]], tooltip = c("x","y","id")))
+```
+
 
 ### Ven Diagramm
 
@@ -172,8 +194,8 @@ for(i in 1:length(deProt)){
   res <- append(res, as.character(deProt[[i]][,1]))
 }
 res <- unique(res)
+saveRDS(res, "resLIMMA.rds") #saving the name of the differentially expressed proteins in a R object.
 print(res)
-saveRDS(res, "resLIMMA.rds")
 ```
 
 

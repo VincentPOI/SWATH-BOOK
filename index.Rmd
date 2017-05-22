@@ -14,13 +14,25 @@ knitr::opts_chunk$set(cache=TRUE)
 
 #Introduction
 
-SWATH-MS is a data-independent acquisition mass spectrometry techinique that allows to identify and quantify a great number of protein in a single sample. This technique is therefore suitable for proteomics studies trying to assess the variation in the protein expression of different samples, in order to determine the proteins affected by a certain factor.
+  SWATH-MS is a data-independent acquisition mass spectrometry techinique that allows to identify and quantify a great number of protein in a single sample. This technique is therefore suitable for proteomics studies trying to assess the variation in the protein expression of differents conditions.  
+  The raw data doesn't allow to conclude on a differential expression because there are bias introduce by the experiment preparation and the tools used, to consider those bias the data needs to be normalized, and to be sure the results aren't random, statistical test need to be perform.  
+  Differents kind of statistical test can be performed on the SWATH data, this book explain how to perfom the test then extract and visualize the results of three techniques :  
+
+- the Student's test  
+
+- LIMMA
+
+- ANOVA 
 
 The data in this example comes from : Bjelosevic S, Pascovici D, Ping H, et.al. Quantitative age-specific variability of plasma proteins in healthy neonates, children and adults. Molecular & Cellular Proteomics (March 23 2017).
 The studies try to understand the impact of the life stage on protein expression. Four age group are compared each age group comport ten replicates :  
--neonates  
--child less than one year old  
--child between 1 and five years old  
--adults  
 
-146 proteins were identified and quantified.
+- neonates
+
+- child less than one year old  
+
+- child between 1 and five years old  
+
+- adults  
+
+146 proteins were identified and quantified in this study.

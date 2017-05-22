@@ -1,17 +1,14 @@
 #Comparison of the differents statistical test
 
+Loading the proteins deemed as differentially expressed by the different statistical test.
 ```{r}
 resSCL <- readRDS("resSCL.rds")
 resLIMMA <- readRDS("resLIMMA.rds")
 resANOVA <- readRDS("resANOVA.rds")
 ```
 
-```{r}
-setdiff(resANOVA,resSCL)
-print("")
-setdiff(resLIMMA, resANOVA)
-```
 
+Venn diagram of the number of protein identified as differentialy expressed by the differents statistical test : 
 ```{r, message=TRUE}
 library(VennDiagram)
 
@@ -24,7 +21,15 @@ draw.triple.venn(area1 = length(resSCL),
                  n13 = length(intersect(resSCL,resANOVA)), 
                  n123 = length(Reduce(intersect, list(resSCL,resLIMMA,resANOVA))), 
                  category = c("scaling and centering", "LIMMA", "ANOVA"),
-                 cat.dist = c(-0.06, 0, -0.01),
                  lty = "blank", fill = c("skyblue", "pink1", "mediumorchid"))
 ```
 
+List of the proteins  identified as differentialy expressed only by ANOVA.
+```{r}
+setdiff(resANOVA,resSCL)
+```
+
+List of the proteins identified as differentialy expressed only by using LIMMA.
+```{r}
+setdiff(resLIMMA, resANOVA)
+```

@@ -6,5 +6,4 @@ ggrepel
 futile.logger
 VennDiagram
 edgeR
-gplots
-reshape2
+plotly

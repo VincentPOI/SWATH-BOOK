@@ -52,6 +52,12 @@
 <link href="libs/dt-core-1.10.12/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.12/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.12/js/jquery.dataTables.min.js"></script>
+<link href="libs/plotlyjs-1.26.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotlyjs-1.26.1/plotly-latest.min.js"></script>
+<script src="libs/plotly-binding-4.6.0/plotly.js"></script>
+<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
 
 
 <style type="text/css">
@@ -109,8 +115,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="2.2" data-path="students-test.html"><a href="students-test.html#log-transformation"><i class="fa fa-check"></i><b>2.2</b> Log transformation</a></li>
 <li class="chapter" data-level="2.3" data-path="students-test.html"><a href="students-test.html#normalization"><i class="fa fa-check"></i><b>2.3</b> Normalization</a></li>
 <li class="chapter" data-level="2.4" data-path="students-test.html"><a href="students-test.html#differential-expression-annalysis"><i class="fa fa-check"></i><b>2.4</b> Differential expression annalysis</a><ul>
-<li class="chapter" data-level="2.4.1" data-path="students-test.html"><a href="students-test.html#experimental-design"><i class="fa fa-check"></i><b>2.4.1</b> experimental design</a></li>
-<li class="chapter" data-level="2.4.2" data-path="students-test.html"><a href="students-test.html#fold-change-and-statistical-test-calcul"><i class="fa fa-check"></i><b>2.4.2</b> Fold change and statistical test calcul</a></li>
+<li class="chapter" data-level="2.4.1" data-path="students-test.html"><a href="students-test.html#experimental-design"><i class="fa fa-check"></i><b>2.4.1</b> Experimental design</a></li>
+<li class="chapter" data-level="2.4.2" data-path="students-test.html"><a href="students-test.html#fold-change-and-students-test"><i class="fa fa-check"></i><b>2.4.2</b> Fold change and Student’s test</a></li>
 <li class="chapter" data-level="2.4.3" data-path="students-test.html"><a href="students-test.html#differentially-expressed-proteins"><i class="fa fa-check"></i><b>2.4.3</b> Differentially expressed proteins</a></li>
 <li class="chapter" data-level="2.4.4" data-path="students-test.html"><a href="students-test.html#volcano-plot"><i class="fa fa-check"></i><b>2.4.4</b> Volcano Plot</a></li>
 <li class="chapter" data-level="2.4.5" data-path="students-test.html"><a href="students-test.html#ven-diagramm"><i class="fa fa-check"></i><b>2.4.5</b> Ven Diagramm</a></li>
@@ -163,13 +169,22 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="introduction" class="section level1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
-<p>SWATH-MS is a data-independent acquisition mass spectrometry techinique that allows to identify and quantify a great number of protein in a single sample. This technique is therefore suitable for proteomics studies trying to assess the variation in the protein expression of different samples, in order to determine the proteins affected by a certain factor.</p>
-<p>The data in this example comes from : Bjelosevic S, Pascovici D, Ping H, et.al. Quantitative age-specific variability of plasma proteins in healthy neonates, children and adults. Molecular &amp; Cellular Proteomics (March 23 2017). The studies try to understand the impact of the life stage on protein expression. Four age group are compared each age group comport ten replicates :<br />
--neonates<br />
--child less than one year old<br />
--child between 1 and five years old<br />
--adults</p>
-<p>146 proteins were identified and quantified.</p>
+<p>SWATH-MS is a data-independent acquisition mass spectrometry techinique that allows to identify and quantify a great number of protein in a single sample. This technique is therefore suitable for proteomics studies trying to assess the variation in the protein expression of differents conditions.<br />
+The raw data doesn’t allow to conclude on a differential expression because there are bias introduce by the experiment preparation and the tools used, to consider those bias the data needs to be normalized, and to be sure the results aren’t random, statistical test need to be perform.<br />
+Differents kind of statistical test can be performed on the SWATH data, this book explain how to perfom the test then extract and visualize the results of three techniques :</p>
+<ul>
+<li><p>the Student’s test</p></li>
+<li><p>LIMMA</p></li>
+<li><p>ANOVA</p></li>
+</ul>
+<p>The data in this example comes from : Bjelosevic S, Pascovici D, Ping H, et.al. Quantitative age-specific variability of plasma proteins in healthy neonates, children and adults. Molecular &amp; Cellular Proteomics (March 23 2017). The studies try to understand the impact of the life stage on protein expression. Four age group are compared each age group comport ten replicates :</p>
+<ul>
+<li><p>neonates</p></li>
+<li><p>child less than one year old</p></li>
+<li><p>child between 1 and five years old</p></li>
+<li><p>adults</p></li>
+</ul>
+<p>146 proteins were identified and quantified in this study.</p>
 
 </div>
             </section>

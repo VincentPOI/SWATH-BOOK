@@ -52,6 +52,12 @@
 <link href="libs/dt-core-1.10.12/css/jquery.dataTables.min.css" rel="stylesheet" />
 <link href="libs/dt-core-1.10.12/css/jquery.dataTables.extra.css" rel="stylesheet" />
 <script src="libs/dt-core-1.10.12/js/jquery.dataTables.min.js"></script>
+<link href="libs/plotlyjs-1.26.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotlyjs-1.26.1/plotly-latest.min.js"></script>
+<script src="libs/plotly-binding-4.6.0/plotly.js"></script>
+<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
 
 
 <style type="text/css">
@@ -109,8 +115,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li class="chapter" data-level="2.2" data-path="students-test.html"><a href="students-test.html#log-transformation"><i class="fa fa-check"></i><b>2.2</b> Log transformation</a></li>
 <li class="chapter" data-level="2.3" data-path="students-test.html"><a href="students-test.html#normalization"><i class="fa fa-check"></i><b>2.3</b> Normalization</a></li>
 <li class="chapter" data-level="2.4" data-path="students-test.html"><a href="students-test.html#differential-expression-annalysis"><i class="fa fa-check"></i><b>2.4</b> Differential expression annalysis</a><ul>
-<li class="chapter" data-level="2.4.1" data-path="students-test.html"><a href="students-test.html#experimental-design"><i class="fa fa-check"></i><b>2.4.1</b> experimental design</a></li>
-<li class="chapter" data-level="2.4.2" data-path="students-test.html"><a href="students-test.html#fold-change-and-statistical-test-calcul"><i class="fa fa-check"></i><b>2.4.2</b> Fold change and statistical test calcul</a></li>
+<li class="chapter" data-level="2.4.1" data-path="students-test.html"><a href="students-test.html#experimental-design"><i class="fa fa-check"></i><b>2.4.1</b> Experimental design</a></li>
+<li class="chapter" data-level="2.4.2" data-path="students-test.html"><a href="students-test.html#fold-change-and-students-test"><i class="fa fa-check"></i><b>2.4.2</b> Fold change and Student’s test</a></li>
 <li class="chapter" data-level="2.4.3" data-path="students-test.html"><a href="students-test.html#differentially-expressed-proteins"><i class="fa fa-check"></i><b>2.4.3</b> Differentially expressed proteins</a></li>
 <li class="chapter" data-level="2.4.4" data-path="students-test.html"><a href="students-test.html#volcano-plot"><i class="fa fa-check"></i><b>2.4.4</b> Volcano Plot</a></li>
 <li class="chapter" data-level="2.4.5" data-path="students-test.html"><a href="students-test.html#ven-diagramm"><i class="fa fa-check"></i><b>2.4.5</b> Ven Diagramm</a></li>
@@ -160,13 +166,29 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
             <section class="normal" id="section-">
 <div id="comparison-of-the-differents-statistical-test" class="section level1">
 <h1><span class="header-section-number">5</span> Comparison of the differents statistical test</h1>
+<p>Loading the proteins deemed as differentially expressed by the different statistical test.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resSCL &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;resSCL.rds&quot;</span>)
 resLIMMA &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;resLIMMA.rds&quot;</span>)
 resANOVA &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span class="st">&quot;resANOVA.rds&quot;</span>)</code></pre></div>
+<p>Venn diagram of the number of protein identified as differentialy expressed by the differents statistical test :</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(VennDiagram)
+
+<span class="kw">grid.newpage</span>()
+<span class="kw">draw.triple.venn</span>(<span class="dt">area1 =</span> <span class="kw">length</span>(resSCL), 
+                 <span class="dt">area2 =</span> <span class="kw">length</span>(resLIMMA), 
+                 <span class="dt">area3 =</span> <span class="kw">length</span>(resANOVA), 
+                 <span class="dt">n12 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resSCL,resLIMMA)), 
+                 <span class="dt">n23 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resLIMMA,resANOVA)), 
+                 <span class="dt">n13 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resSCL,resANOVA)), 
+                 <span class="dt">n123 =</span> <span class="kw">length</span>(<span class="kw">Reduce</span>(intersect, <span class="kw">list</span>(resSCL,resLIMMA,resANOVA))), 
+                 <span class="dt">category =</span> <span class="kw">c</span>(<span class="st">&quot;scaling and centering&quot;</span>, <span class="st">&quot;LIMMA&quot;</span>, <span class="st">&quot;ANOVA&quot;</span>),
+                 <span class="dt">lty =</span> <span class="st">&quot;blank&quot;</span>, <span class="dt">fill =</span> <span class="kw">c</span>(<span class="st">&quot;skyblue&quot;</span>, <span class="st">&quot;pink1&quot;</span>, <span class="st">&quot;mediumorchid&quot;</span>))</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
+<pre><code>## (polygon[GRID.polygon.534], polygon[GRID.polygon.535], polygon[GRID.polygon.536], polygon[GRID.polygon.537], polygon[GRID.polygon.538], polygon[GRID.polygon.539], text[GRID.text.540], text[GRID.text.541], text[GRID.text.542], text[GRID.text.543], text[GRID.text.544], text[GRID.text.545])</code></pre>
+<p>List of the proteins identified as differentialy expressed only by ANOVA.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setdiff</span>(resANOVA,resSCL)</code></pre></div>
 <pre><code>## [1] &quot;sp|P01859|IGHG2_HUMAN&quot; &quot;sp|P06311|KV311_HUMAN&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(<span class="st">&quot;&quot;</span>)</code></pre></div>
-<pre><code>## [1] &quot;&quot;</code></pre>
+<p>List of the proteins identified as differentialy expressed only by using LIMMA.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setdiff</span>(resLIMMA, resANOVA)</code></pre></div>
 <pre><code>##  [1] &quot;sp|P02790|HEMO_HUMAN&quot;  &quot;sp|P01023|A2MG_HUMAN&quot; 
 ##  [3] &quot;sp|P02649|APOE_HUMAN&quot;  &quot;sp|Q06033|ITIH3_HUMAN&quot;
@@ -204,21 +226,6 @@ resANOVA &lt;-<span class="st"> </span><span class="kw">readRDS</span>(<span cla
 ## [67] &quot;sp|P02750|A2GL_HUMAN&quot;  &quot;sp|P13671|CO6_HUMAN&quot;  
 ## [69] &quot;sp|P22792|CPN2_HUMAN&quot;  &quot;sp|P02763|A1AG1_HUMAN&quot;
 ## [71] &quot;sp|P01009|A1AT_HUMAN&quot;  &quot;sp|P02656|APOC3_HUMAN&quot;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(VennDiagram)
-
-<span class="kw">grid.newpage</span>()
-<span class="kw">draw.triple.venn</span>(<span class="dt">area1 =</span> <span class="kw">length</span>(resSCL), 
-                 <span class="dt">area2 =</span> <span class="kw">length</span>(resLIMMA), 
-                 <span class="dt">area3 =</span> <span class="kw">length</span>(resANOVA), 
-                 <span class="dt">n12 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resSCL,resLIMMA)), 
-                 <span class="dt">n23 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resLIMMA,resANOVA)), 
-                 <span class="dt">n13 =</span> <span class="kw">length</span>(<span class="kw">intersect</span>(resSCL,resANOVA)), 
-                 <span class="dt">n123 =</span> <span class="kw">length</span>(<span class="kw">Reduce</span>(intersect, <span class="kw">list</span>(resSCL,resLIMMA,resANOVA))), 
-                 <span class="dt">category =</span> <span class="kw">c</span>(<span class="st">&quot;scaling and centering&quot;</span>, <span class="st">&quot;LIMMA&quot;</span>, <span class="st">&quot;ANOVA&quot;</span>),
-                 <span class="dt">cat.dist =</span> <span class="kw">c</span>(-<span class="fl">0.06</span>, <span class="dv">0</span>, -<span class="fl">0.01</span>),
-                 <span class="dt">lty =</span> <span class="st">&quot;blank&quot;</span>, <span class="dt">fill =</span> <span class="kw">c</span>(<span class="st">&quot;skyblue&quot;</span>, <span class="st">&quot;pink1&quot;</span>, <span class="st">&quot;mediumorchid&quot;</span>))</code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-38-1.png" width="672" /></p>
-<pre><code>## (polygon[GRID.polygon.1724], polygon[GRID.polygon.1725], polygon[GRID.polygon.1726], polygon[GRID.polygon.1727], polygon[GRID.polygon.1728], polygon[GRID.polygon.1729], text[GRID.text.1730], text[GRID.text.1731], text[GRID.text.1732], text[GRID.text.1733], text[GRID.text.1734], text[GRID.text.1735], text[GRID.text.1736], text[GRID.text.1737], text[GRID.text.1738], text[GRID.text.1739])</code></pre>
 
 </div>
             </section>

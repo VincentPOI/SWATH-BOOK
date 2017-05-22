@@ -1,16 +1,6 @@
 #ANOVA
 
-This worflow shows how to process data from SWATH-MS protein quantification, in order to study differential expression of the proteins between the different conditions.
-
-The data in this example come from : Bjelosevic S, Pascovici D, Ping H, et.al. Quantitative age-specific variability of plasma proteins in healthy neonates, children and adults. Molecular & Cellular Proteomics (March 23 2017). Four conditions are compared each conditions have ten replicates :  
--neonates  
--child less than one year old  
--child between 1 and five years old  
--adults  
-
-146 proteins were identified and quantified. 
-
-Here we use ANOVA (analysis of variance) to identify significantly differentially expressed protein. The ANOVA test the statistical significance of the mean difference between several groups. But ANOVA doesn't allow to identify between exactly which groups this difference is significant that is why a POST HOC test is needed to precise the groups between which the difference is the most significant.
+Here we use ANOVA (analysis of variance) to identify significantly differentially expressed protein. The ANOVA test the statistical significance of the mean difference between several groups. ANOVA doesn't allow to identify between which groups this difference is significant that is why a POST HOC test is needed to calculate the groups between which the difference is the most significant.
 
 ## loading and visualizing the data 
 ```{r}
@@ -87,6 +77,30 @@ resultsANOVA <-Results[which(Results$p <= 0.05 & abs(Results$FC) >= 0.5), ]
 DT::datatable(resultsANOVA)
 ```
 
+```{r, warning=FALSE}
+  plotTitle <- "Results of the ANOVA tests perform on each protein"
+  values <- as.data.frame(Results)
+  forplot <- data.frame(x=as.numeric(values[,6]), y=-log10(values[,5]), id=row.names(values))
+  tmp <- forplot[as.numeric(forplot$y)>=-log10(tresh_fc) & abs(forplot$x)>tresh_fc,]
+  p <- ggplot(forplot) + geom_point(aes(x, y , label = id, color = ifelse(y>=-log10(tresh_p) & abs(x)>=tresh_fc, "DE proteins", "not significant")),show.legend = F) +
+    scale_color_manual(values = c("red", "blue")) +
+    geom_vline(xintercept = tresh_fc ) +
+    geom_vline(xintercept = -tresh_fc) + 
+    geom_hline(yintercept = -log10(tresh_p)) + 
+    labs(title = plotTitle,x="maximum Fold-change", y="-log10(P.Value)") + theme_bw() 
+    layout(ggplotly(p, tooltip = c("x","y","id")))
+```
+
+List of the proteins deemed as differentially expressed : 
+```{r}
+res <- row.names(resultsANOVA)
+saveRDS(res, "resANOVA.rds") #saving the name of the differentially expressed proteins in a R object.
+print(res)
+
+```
+
+
+
 
 ### post hoc analysis
 
@@ -109,59 +123,10 @@ for (i in 1:nrow(DEprot)) {
 
 
 
-```{r}
-heat <- as.matrix(data[which(row.names(data) %in% row.names(resultsANOVA)),])
-```
 
 
 
-```{r}
-library(gplots)
-heatmap.2(heat, trace = "none") 
-heatmap.2(as.matrix(data), trace = "none") 
-```
+`
 
 
-```{r}
-library(reshape2)
-heat <- melt(heat)
-names(heat) <- c("protein", "sample", "value")
 
-library(ggplot2)
-ggplot(heat, aes(sample, protein )) +
-  geom_tile(aes(fill = value), color = "white") +
-  scale_fill_gradient(low = "red", high = "steelblue") +
-  ylab("List of genes ") +
-  xlab("List of patients") +
-  theme(legend.title = element_text(size = 10),
-        legend.text = element_text(size = 12),
-        plot.title = element_text(size=16),
-        axis.title=element_text(size=14,face="bold"),
-        axis.text.x = element_text(angle = 90, hjust = 1)) +
-  labs(fill = "Expression level")
-```
-
-
-```{r}
-  plotTitle <- "Results of the ANOVA tests perform on each protein"
-  values <- as.data.frame(Results)
-  forplot <- data.frame(x=as.numeric(values[,6]), y=-log10(values[,5]), id=row.names(values))
-  tmp <- forplot[as.numeric(forplot$y)>=-log10(tresh_fc) & abs(forplot$x)>tresh_fc,]
-  p <- ggplot(forplot) + geom_point(aes(x, y , color = ifelse(y>=-log10(tresh_p) & abs(x)>=tresh_fc, "not signi", "FC")),show.legend = F) +
-    scale_color_manual(values = c("blue", "red")) +
-    geom_text_repel(data = subset(forplot, abs(forplot$x)>=tresh_fc & forplot$y>=-log10(tresh_p)),
-                    aes(x,y,label = id),
-                    size = 2) +
-    geom_vline(xintercept = tresh_fc ) +
-    geom_vline(xintercept = -tresh_fc) + 
-    geom_hline(yintercept = -log10(tresh_p)) + 
-    labs(title = plotTitle,x="maximum Fold-change", y="-log10(P.Value)") + theme_bw() 
-    print(p)
-```
-
-
-```{r}
-res <- row.names(resultsANOVA)
-print(res)
-saveRDS(res, "resANOVA.rds")
-```
